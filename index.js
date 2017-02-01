@@ -77,6 +77,10 @@ class SuperPlugin {
             request.on('response', resolve)
         })
     }
+
+    setConfig(config) {
+        this.config = config
+    }
 }
 
 module.exports = new SuperPlugin()
