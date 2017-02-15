@@ -3,21 +3,39 @@
 const FormData = require('form-data')
 const https = require('https')
 const yargs = require('yargs')
+const imgur = require('imgur')
 
 class SuperPlugin {
     constructor() {
         this.failedSpecs = []
         this.startTime = null
+        this.promises = []
     }
 
     onPrepare() {
         jasmine.getEnv().addReporter({
             specDone: (res) => {
                 if (res.status === 'failed') {
-                    this.failedSpecs.push({
+                    const failedInfo = {
                         fullName: res.fullName,
                         failedExpectations: JSON.stringify(res.failedExpectations)
-                    })
+                    }
+
+                    this.promises.push(browser.takeScreenshot()
+                        .then(imgur.uploadBase64)
+                        .then((imgurJson) => {
+                            failedInfo.screenshot = imgurJson.data.link
+                        })
+                        .then(() => {
+                            return browser.manage().logs().get('browser')
+                        })
+                        .then((browserLog) => {
+                            failedInfo.browserLog = JSON.stringify(browserLog)
+                        })
+                        .then(() => {
+                            this.failedSpecs.push(failedInfo)
+                        })
+                        .catch(SuperPlugin.logError))
                 }
             }
         })
@@ -27,11 +45,9 @@ class SuperPlugin {
         const sendPromises = []
 
         this.failedSpecs.forEach((failedInfo) => {
-            sendPromises.push(this._sendData({
-                type: 'failedSpecs',
-                fullName: failedInfo.fullName,
-                failedExpectations: failedInfo.failedExpectations
-            }))
+            sendPromises.push(this._sendData(Object.assign({
+                type: 'failedSpecs'
+            }, failedInfo)))
         })
 
         return Promise.all(sendPromises)
@@ -80,6 +96,16 @@ class SuperPlugin {
 
     setConfig(config) {
         this.config = config
+    }
+
+    teardown() {
+        return Promise.all(this.promises)
+    }
+
+    static logError() {
+        const args = Array.prototype.slice.call(arguments);
+        args.unshift('SuperPlugin error')
+        console.error.apply(null, args)
     }
 }
 
