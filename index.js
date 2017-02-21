@@ -1,3 +1,21 @@
+/**
+ * Protractor Google Docs Plugin
+ * 
+ * Sends info about failed specs to a Google Spreadsheet.
+ * Namely:
+ * - For each spec
+ *     - fullName
+ *     - failedExpectations
+ *     - screenshot
+ *     - browserLog
+ * - For each test suite
+ *     - testName
+ *     - execTime
+ *     - exitCode
+ *
+ * For more info see README.md.
+ */
+
 'use strict'
 
 const FormData = require('form-data')
