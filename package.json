@@ -1,6 +1,6 @@
 {
     "name": "protractor-google-docs-plugin",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "description": "",
     "main": "index.js",
     "repository": {
@@ -24,6 +24,7 @@
     "homepage": "https://github.com/onemanclapping/protractor-google-docs-plugin",
     "dependencies": {
         "form-data": "^2.1.2",
-        "yargs": "^6.6.0"
+        "yargs": "^6.6.0",
+        "imgur": "^0.2.0"
     }
 }
